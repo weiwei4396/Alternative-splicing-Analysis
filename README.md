@@ -40,7 +40,7 @@ Long-read RNA-seq analysis
 <details>
 <summary>Click</summary>
 
-只需要给定更新后的gtf(可以用BroCOLI识别后更新的GTF, 或者初始给定的GTF或者其他), [SUPPA](https://github.com/comprna/SUPPA)就可以从gtf中得到可变剪切事件;
+只需要给定更新后的gtf(可以用BroCOLI识别后更新的GTF, 或者初始给定的GTF或者其他), [SUPPA](https://github.com/comprna/SUPPA) 就可以从gtf中得到可变剪切事件;
 
 ```shell
 python /data/workdir/panw/softwares/SUPPA2.3/suppa.py generateEvents -i updated_annotations.gtf -o HIPP_MX -f ioe -e MX --pool-genes
