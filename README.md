@@ -4,7 +4,7 @@ Long-read RNA-seq analysis
 
 
 
-## NanoPlot
+## 1.NanoPlot
 <details>
 <summary>Click</summary>
 
@@ -16,7 +16,7 @@ Long-read RNA-seq analysis
 
 
 
-## fastplong
+## 2.fastplong
 <details>
 <summary>Click</summary>
 
@@ -27,7 +27,7 @@ Long-read RNA-seq analysis
 
 
 
-## Coverage
+## 3.Coverage
 <details>
 <summary>Click</summary>
 
@@ -36,7 +36,7 @@ Long-read RNA-seq analysis
 
 
 
-## SUPPA Alternative splicing events
+## 4.SUPPA Alternative splicing events
 <details>
 <summary>Click</summary>
 
