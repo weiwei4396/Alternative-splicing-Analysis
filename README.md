@@ -30,7 +30,7 @@ Long-read RNA-seq analysis
 
 </details>
 
-#### 4.2 Sicelore-2.1
+#### 4.2 [Sicelore-2.1](https://github.com/ucagenomix/sicelore-2.1)
 <details>
 <summary> </summary>
 
