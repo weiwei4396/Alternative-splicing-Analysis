@@ -31,9 +31,14 @@ Long-read RNA-seq analysis
 </details>
 
 #### 4.2 [Sicelore-2.1](https://github.com/ucagenomix/sicelore-2.1)
+用来做长读长单细胞数据的定量
 <details>
 <summary> </summary>
+- 扫描Nanopore的reads, 分配cell barcode;
+这一步扫描文库生成的cDNA序列, 对Nanopore fastq reads扫描polyA(T)和adaptor, 将其归类为pass; 扫描polyA(T)的长度参数大于等于15nt, A(T)≥75%, 在两端100nt以内, 找到polyA之后在下游找adaptor; 在得到第一次的pass的reads后, 使用cellranger生成的barcode list来分配barcode, 在给定barcode list的条件下, 99%的都会分配正确, 有正确barcode信息的归类于pass, 其余的为fail.
+```shell
 
+```
 
 </details>
 
