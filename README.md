@@ -57,22 +57,20 @@ java -jar -Xmx75g $bcumifinder scanfastq -d $LongRead_fastqd -o $outputdir --bcE
 - **2.Mapping**
 这一步表示将pass_fastq文件使用minimap2比对到reference genome;
 ```shell
-reference=/data/workdir/panw/Reference/gencode_new.v40.gtf
+reference=/data/workdir/panw/Reference/hg38.fa
+juncBED=/data/workdir/panw/Data/LongBench/All_result/LR_ONT_GEX/junctions.bed
 tNum=30
-minimap2 -ax splice -ub -k14 -w 4 --junc-bed junctions.bed --sam-hit-only --secondary=no -t $tNum $reference new_SC_ONT.fastq > mini217_SC_ONT.sam
-samtools view -bS -@ 20 $outputdir/P56_SC_M2_STRI_ONT_fastq_pass.sam > $outputdir/P56_SC_M2_STRI_ONT_fastq_pass.bam
-samtools sort -m 20G -@ 20 -o ${outputdir}/fastq_pass_sorted.bam $outputdir/P56_SC_M2_STRI_ONT_fastq_pass.bam
-samtools index -@ 20 ${outputdir}/fastq_pass_sorted.bam ${outputdir}/fastq_pass_sorted_index
+minimap2 -ax splice -ub -k14 -w 4 --junc-bed $juncBED --sam-hit-only --secondary=no -t $tNum $reference $outputdir/passed/SC_ONT_passed.fastq.gz > $outputdir/SC_ONT.sam
+samtools view -bS -@ $tNum $outputdir/SC_ONT.sam > $outputdir/SC_ONT.bam
+samtools sort -@ $tNum -o ${outputdir}/SC_ONT_sorted.bam $outputdir/SC_ONT.bam
+samtools index -@ $tNum ${outputdir}/SC_ONT_sorted.bam $outputdir/SC_ONT_sorted_index
 ```
 
 - **3.UMI assignment**
 在Nanopore bam文件中寻找UMI;
 ```shell
-bcumifinder=/data/workdir/panw/software/sicelore-2.1/Jar/NanoporeBC_UMI_finder-2.1.jar
-input_bam=/data/workdir/panw/Data/longreads_mousebrain/Process/long_reads/fastq_pass_sorted.bam
-output_bam=/data/workdir/panw/Data/longreads_mousebrain/Process/long_reads/fastq_pass_bc_umi_assigned_withGE_u8.bam
-gtf=/data/workdir/panw/Data/longreads_mousebrain/my_subset/Annotations_Fasta_Files/mouse_gencode_vM34_comprehensive.gtf
-java -jar -Xmx80g $bcumifinder assignumis --inFileNanopore $input_bam --outfile $output_bam --ONTgene GE --annotationFile $gtf
+gtf=/data/workdir/panw/Reference/gencode_new.v40.gtf
+java -jar -Xmx80g $bcumifinder assignumis --inFileNanopore ${outputdir}/SC_ONT_sorted.bam --outfile ${outputdir}/SC_ONT_sorted_umi.bam --ONTgene GE --annotationFile $gtf
 ```
 </details>
 
