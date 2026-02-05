@@ -35,18 +35,45 @@ Long-read RNA-seq analysis
 <details>
 <summary> </summary>
 
-- 扫描Nanopore的reads, 分配cell barcode;
+- **1.扫描Nanopore的reads, 分配cell barcode;**
 
 这一步扫描文库生成的cDNA序列, 对Nanopore fastq reads扫描polyA(T)和adaptor, 将其归类为pass; 扫描polyA(T)的长度参数大于等于15nt, A(T)≥75%, 在两端100nt以内, 找到polyA之后在下游找adaptor; 在得到第一次的pass的reads后, 使用cellranger生成的barcode list来分配barcode, 在给定barcode list的条件下, 99%的都会分配正确, 有正确barcode信息的归类于pass, 其余的为fail.
 
 ```shell
-LongRead_fastqd=/data/workdir/panw/Data/longreads_mousebrain/neoscience2024/ONT_P56_SC_M2_STR/P56_SC_M2_STRI_ONT
-bcumifinder=/data/workdir/panw/software/sicelore-2.1/Jar/NanoporeBC_UMI_finder-2.1.jar
-outputdir=/data/workdir/panw/Data/longreads_mousebrain/Process/long_reads
-cellRangerbarcodes=/data/workdir/panw/Data/longreads_mousebrain/Process/short_reads/neosci_mouse_stri_M2_P56/outs/filtered_feature_bc_matrix/barcodes.tsv
-java -jar -Xmx50g $bcumifinder scanfastq -d $LongRead_fastqd -o $outputdir --bcEditDistance 1 --cellRangerBCs $cellRangerbarcodes
+LongRead_fastqd=/data/workdir/panw/Data/LongBench/All_fastq/LR_sc_cellMix/SC_ONT.fastq.gz
+bcumifinder=/data/workdir/panw/softwares/sicelore-2.1/Jar/NanoporeBC_UMI_finder-2.1.jar
+outputdir=/data/workdir/panw/Data/LongBench/All_result/LR_ONT_GEX/Sicelore
+cellRangerbarcodes=/data/workdir/panw/Data/LongBench/All_result/SC_GEX_results/outs/filter_barcodes_clean.tsv
+java -jar -Xmx75g $bcumifinder scanfastq -d $LongRead_fastqd -o $outputdir --bcEditDistance 1 --cellRangerBCs $cellRangerbarcodes
+```
+- -jar参数表示Java的库应用程序的压缩文件;
+- -Xmx参数表示为Java分配的最大内存大小; 50g表示分配50G, 500m表示500M;
+- --bcEditDistance参数表示与barcode的距离;
+- -d表示输入的fastq文件;
+- -o表示输出文件保存的路径;
+- --cellRangerBCs这个是可选的参数, 如果有barcode.tsv文件可以提供;
+- 这段代码会自动占用服务器中所有的线程; 接近98个线程, 运行了一小时; 62G的fastq.gz文件;
+
+- **2.Mapping**
+这一步表示将pass_fastq文件使用minimap2比对到reference genome;
+```shell
+reference=/data/workdir/panw/Reference/gencode_new.v40.gtf
+tNum=30
+minimap2 -ax splice -ub -k14 -w 4 --junc-bed junctions.bed --sam-hit-only --secondary=no -t $tNum $reference new_SC_ONT.fastq > mini217_SC_ONT.sam
+samtools view -bS -@ 20 $outputdir/P56_SC_M2_STRI_ONT_fastq_pass.sam > $outputdir/P56_SC_M2_STRI_ONT_fastq_pass.bam
+samtools sort -m 20G -@ 20 -o ${outputdir}/fastq_pass_sorted.bam $outputdir/P56_SC_M2_STRI_ONT_fastq_pass.bam
+samtools index -@ 20 ${outputdir}/fastq_pass_sorted.bam ${outputdir}/fastq_pass_sorted_index
 ```
 
+- **3.UMI assignment**
+在Nanopore bam文件中寻找UMI;
+```shell
+bcumifinder=/data/workdir/panw/software/sicelore-2.1/Jar/NanoporeBC_UMI_finder-2.1.jar
+input_bam=/data/workdir/panw/Data/longreads_mousebrain/Process/long_reads/fastq_pass_sorted.bam
+output_bam=/data/workdir/panw/Data/longreads_mousebrain/Process/long_reads/fastq_pass_bc_umi_assigned_withGE_u8.bam
+gtf=/data/workdir/panw/Data/longreads_mousebrain/my_subset/Annotations_Fasta_Files/mouse_gencode_vM34_comprehensive.gtf
+java -jar -Xmx80g $bcumifinder assignumis --inFileNanopore $input_bam --outfile $output_bam --ONTgene GE --annotationFile $gtf
+```
 </details>
 
 #### 4.3 [Isosceles](https://github.com/Genentech/Isosceles)
