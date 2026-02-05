@@ -23,7 +23,7 @@ Long-read RNA-seq analysis
 </details>
 
 ## 4.Transcript Identification and Quantification
-#### 4.1 IsoQuant and Spl-IsoQuant
+#### 4.1 [IsoQuant](https://github.com/ablab/IsoQuant) and [Spl-IsoQuant](https://github.com/algbio/spl-IsoQuant)
 <details>
 <summary> </summary>
 
@@ -37,7 +37,7 @@ Long-read RNA-seq analysis
 
 </details>
 
-#### 4.3 Isosceles
+#### 4.3 [Isosceles](https://github.com/Genentech/Isosceles)
 <details>
 <summary> </summary>
 
