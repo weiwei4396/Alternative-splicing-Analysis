@@ -28,6 +28,16 @@ Long-read RNA-seq analysis
 <details>
 <summary> </summary>
 
+```python
+isoquant.py \
+  --threads 8 \
+  --data_type nanopore \
+  --reference /data/workdir/panw/C_code/sc_mouse_brain_data/Annotations_Fasta_Files/GRCm39.genome.fa \
+  --genedb /data/workdir/panw/C_code/sc_mouse_brain_data/Annotations_Fasta_Files/mouse_gencode_vM34_comprehensive.gtf \
+  --bam /data/workdir/panw/MouseHIPP3/P21/P21_M1_HIPP/P21_SC_M1_HIPP_BC_U8_sorted.bam \
+  --read_group tag:BC \
+  -o /data/workdir/panw/IsoQuant
+```
 
 </details>
 
@@ -73,6 +83,16 @@ samtools index -@ $tNum ${outputdir}/SC_ONT_sorted.bam $outputdir/SC_ONT_sorted_
 gtf=/data/workdir/panw/Reference/gencode_new.v40.gtf
 java -jar -Xmx80g $bcumifinder assignumis --inFileNanopore ${outputdir}/SC_ONT_sorted.bam --outfile ${outputdir}/SC_ONT_sorted_umi.bam --ONTgene GE --annotationFile $gtf
 ```
+
+- **4.Generate cell or spatial barcode x Gene-/Isoform-/Junction-level matrices**
+```shell
+sicelorejar=/data/workdir/panw/softwares/sicelore-2.1/Jar/Sicelore-2.1.jar
+java -jar -Xmx75g $sicelorejar SelectValidCellBarcode I=BarcodesAssigned.tsv O=ValidBarcodes.csv MINUMI=1 ED0ED1RATIO=1
+gtfToGenePred -genePredExt -geneNameAsName2 $gtf gencode.v38.refflat.txt
+paste <(cut -f 12 gencode.v38.refflat.txt) <(cut -f 1-10 gencode.v38.refflat.txt) > gencode.v38.refFlat
+java -jar -Xmx180g $sicelorejar IsoformMatrix I=${outputdir}/SC_ONT_sorted_umi.bam GENETAG=GE UMITAG=U8 CELLTAG=BC REFFLAT=gencode.v38.refFlat CSV=ValidBarcodes.csv DELTA=2 MAXCLIP=150 METHOD=STRICT AMBIGUOUS_ASSIGN=false OUTDIR=./UMI PREFIX=sicelore
+```
+
 </details>
 
 #### 4.3 [Isosceles](https://github.com/Genentech/Isosceles)
